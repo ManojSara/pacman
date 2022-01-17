@@ -24,44 +24,46 @@ def depthFirstSearch(problem):
     """
 
     # *** Your Code Here ***
-    print("Start: %s" % (str(problem.startingState())))
-    print("Is the start a goal?: %s" % (problem.isGoal(problem.startingState())))
-    print("Start's successors: %s" % (problem.successorStates(problem.startingState())))
-
     if problem.isGoal(problem.startingState()):
-         return "DONE"
+        "STOP"
     fringe = Stack()
-    fringe.push((problem.startingState(), 'STOP', 0))
+    fringe.push((problem.startingState(), 'Stop', 0))
     reached = {problem.startingState()}
+    path = {}
+    goalState = (-1, -1)
     while fringe.isEmpty() is False:
         node = fringe.pop()
+        if node[2] != 'Stop':
+            path[node[0]] = node[1]
         for child in problem.successorStates(node[0]):
             if problem.isGoal(child[0]):
-                fringe.push(child)
+                goalState = child[0]
+                path[child[0]] = child[1]
                 break
             if child[0] not in reached:
                 reached.add(child[0])
                 fringe.push(child)
     directions = []
-    while fringe.isEmpty() is False:
-        directions.append((fringe.pop())[1])
-    print(directions)
-    return directions
-
-def dfsRecur(problem, stack, check):
-    for s in problem.successorStates(stack[-1][0]):
-        if s[0] in check:
+    if goalState == (-1, -1):
+        return directions
+    while len(directions) > -2:
+        directions.insert(0, path[goalState])
+        x, y = goalState
+        if directions[0] == "Stop":
+            break
+        if directions[0] == "North":
+            goalState = (x, y-1)
             continue
-        stack.push(s)
-        check.add(s[0])
-        if problem.isGoal(s[0]):
-            return stack
-        dfsRecur(problem, stack, check)
-        if problem.isGoal(stack[-1][0]):
-            return stack
-        stack.pop()
-    return stack
-
+        if directions[0] == "South":
+            goalState = (x, y+1)
+            continue
+        if directions[0] == "East":
+            goalState = (x-1, y)
+            continue
+        if directions[0] == "West":
+            goalState = (x+1, y)
+            continue
+    return directions
 
 def breadthFirstSearch(problem):
     """
@@ -70,21 +72,45 @@ def breadthFirstSearch(problem):
 
     # *** Your Code Here ***
     if problem.isGoal(problem.startingState()):
-        return "DONE"
+         "STOP"
     fringe = Queue()
-    fringe.push((problem.startingState(), 'STOP', 0))
+    fringe.push((problem.startingState(), 'Stop', 0))
     reached = {problem.startingState()}
+    path = {}
+    goalState = (-1, -1)
     while fringe.isEmpty() is False:
         node = fringe.pop()
+        if node[2] != 'Stop':
+            path[node[0]] = node[1]
         for child in problem.successorStates(node[0]):
             if problem.isGoal(child[0]):
-                fringe.push(child)
+                goalState = child[0]
+                path[child[0]] = child[1]
                 break
             if child[0] not in reached:
                 reached.add(child[0])
                 fringe.push(child)
-    while fringe.isEmpty() is False:
-        print(fringe.pop())
+    directions = []
+    if goalState == (-1, -1):
+        return directions
+    while len(directions) > -2:
+        directions.insert(0, path[goalState])
+        x, y = goalState
+        if directions[0] == "Stop":
+            break
+        if directions[0] == "North":
+            goalState = (x, y-1)
+            continue
+        if directions[0] == "South":
+            goalState = (x, y+1)
+            continue
+        if directions[0] == "East":
+            goalState = (x-1, y)
+            continue
+        if directions[0] == "West":
+            goalState = (x+1, y)
+            continue
+    return directions
 
 def uniformCostSearch(problem):
     """
@@ -92,7 +118,46 @@ def uniformCostSearch(problem):
     """
 
     # *** Your Code Here ***
-    raise NotImplementedError()
+    if problem.isGoal(problem.startingState()):
+        "STOP"
+    fringe = PriorityQueueWithFunction()
+    fringe.push((problem.startingState(), 'Stop', 0))
+    reached = {problem.startingState()}
+    path = {}
+    goalState = (-1, -1)
+    while fringe.isEmpty() is False:
+        node = fringe.pop()
+        if node[2] != 'Stop':
+            path[node[0]] = node[1]
+        for child in problem.successorStates(node[0]):
+            if problem.isGoal(child[0]):
+                goalState = child[0]
+                path[child[0]] = child[1]
+                break
+            if child[0] not in reached:
+                reached.add(child[0])
+                fringe.push(child)
+    directions = []
+    if goalState == (-1, -1):
+        return directions
+    while len(directions) > -2:
+        directions.insert(0, path[goalState])
+        x, y = goalState
+        if directions[0] == "Stop":
+            break
+        if directions[0] == "North":
+            goalState = (x, y-1)
+            continue
+        if directions[0] == "South":
+            goalState = (x, y+1)
+            continue
+        if directions[0] == "East":
+            goalState = (x-1, y)
+            continue
+        if directions[0] == "West":
+            goalState = (x+1, y)
+            continue
+    return directions
 
 def aStarSearch(problem, heuristic):
     """
