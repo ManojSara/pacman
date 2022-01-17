@@ -5,6 +5,7 @@ In this file, you will implement generic search algorithms which are called by P
 from pacai.util.stack import Stack
 from pacai.util.queue import Queue
 from pacai.util.priorityQueue import PriorityQueue
+from pacai.util.priorityQueue import PriorityQueueWithFunction
 
 
 def depthFirstSearch(problem):
@@ -120,8 +121,8 @@ def uniformCostSearch(problem):
     # *** Your Code Here ***
     if problem.isGoal(problem.startingState()):
         "STOP"
-    fringe = PriorityQueueWithFunction()
-    fringe.push((problem.startingState(), 'Stop', 0))
+    fringe = PriorityQueue()
+    fringe.push((problem.startingState(), 'Stop', 0), 0)
     reached = {problem.startingState()}
     path = {}
     goalState = (-1, -1)
@@ -136,7 +137,7 @@ def uniformCostSearch(problem):
                 break
             if child[0] not in reached:
                 reached.add(child[0])
-                fringe.push(child)
+                fringe.push(child, child[2])
     directions = []
     if goalState == (-1, -1):
         return directions
