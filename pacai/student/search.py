@@ -5,8 +5,7 @@ In this file, you will implement generic search algorithms which are called by P
 from pacai.util.stack import Stack
 from pacai.util.queue import Queue
 from pacai.util.priorityQueue import PriorityQueue
-from pacai.util.priorityQueue import PriorityQueueWithFunction
-
+from pacai.core.actions import Actions
 
 def depthFirstSearch(problem):
     """
@@ -26,44 +25,34 @@ def depthFirstSearch(problem):
 
     # *** Your Code Here ***
     if problem.isGoal(problem.startingState()):
-        "STOP"
+        return "STOP"
     fringe = Stack()
-    fringe.push((problem.startingState(), 'Stop', 0))
+    fringe.push(problem.startingState())
     reached = {problem.startingState()}
     path = {}
-    goalState = (-1, -1)
+    directions = []
     while fringe.isEmpty() is False:
         node = fringe.pop()
-        if node[2] != 'Stop':
+        if len(node) == 3:
             path[node[0]] = node[1]
-        for child in problem.successorStates(node[0]):
+            node = node[0]
+        for child in problem.successorStates(node):
             if problem.isGoal(child[0]):
-                goalState = child[0]
-                path[child[0]] = child[1]
-                break
+                # goalState = child[0]
+                state = child[0]
+                move = child[1]
+                path[state] = move
+                directions.append(move)
+                while True:
+                    x, y = Actions.getSuccessor(state, Actions.reverseDirection(move))
+                    state = (int(x), int(y))
+                    if state == problem.startingState():
+                        break
+                    directions.insert(0, path[state])
+                    move = directions[0]
             if child[0] not in reached:
                 reached.add(child[0])
                 fringe.push(child)
-    directions = []
-    if goalState == (-1, -1):
-        return directions
-    while len(directions) > -2:
-        directions.insert(0, path[goalState])
-        x, y = goalState
-        if directions[0] == "Stop":
-            break
-        if directions[0] == "North":
-            goalState = (x, y-1)
-            continue
-        if directions[0] == "South":
-            goalState = (x, y+1)
-            continue
-        if directions[0] == "East":
-            goalState = (x-1, y)
-            continue
-        if directions[0] == "West":
-            goalState = (x+1, y)
-            continue
     return directions
 
 def breadthFirstSearch(problem):
@@ -73,44 +62,34 @@ def breadthFirstSearch(problem):
 
     # *** Your Code Here ***
     if problem.isGoal(problem.startingState()):
-         "STOP"
+        return "STOP"
     fringe = Queue()
-    fringe.push((problem.startingState(), 'Stop', 0))
+    fringe.push(problem.startingState())
     reached = {problem.startingState()}
     path = {}
-    goalState = (-1, -1)
+    directions = []
     while fringe.isEmpty() is False:
         node = fringe.pop()
-        if node[2] != 'Stop':
+        if len(node) == 3:
             path[node[0]] = node[1]
-        for child in problem.successorStates(node[0]):
+            node = node[0]
+        for child in problem.successorStates(node):
             if problem.isGoal(child[0]):
-                goalState = child[0]
-                path[child[0]] = child[1]
-                break
+                # goalState = child[0]
+                state = child[0]
+                move = child[1]
+                path[state] = move
+                directions.append(move)
+                while True:
+                    x, y = Actions.getSuccessor(state, Actions.reverseDirection(move))
+                    state = (int(x), int(y))
+                    if state == problem.startingState():
+                        break
+                    directions.insert(0, path[state])
+                    move = directions[0]
             if child[0] not in reached:
                 reached.add(child[0])
                 fringe.push(child)
-    directions = []
-    if goalState == (-1, -1):
-        return directions
-    while len(directions) > -2:
-        directions.insert(0, path[goalState])
-        x, y = goalState
-        if directions[0] == "Stop":
-            break
-        if directions[0] == "North":
-            goalState = (x, y-1)
-            continue
-        if directions[0] == "South":
-            goalState = (x, y+1)
-            continue
-        if directions[0] == "East":
-            goalState = (x-1, y)
-            continue
-        if directions[0] == "West":
-            goalState = (x+1, y)
-            continue
     return directions
 
 def uniformCostSearch(problem):
@@ -120,44 +99,34 @@ def uniformCostSearch(problem):
 
     # *** Your Code Here ***
     if problem.isGoal(problem.startingState()):
-        "STOP"
+        return "STOP"
     fringe = PriorityQueue()
-    fringe.push((problem.startingState(), 'Stop', 0), 0)
+    fringe.push(problem.startingState(), 0)
     reached = {problem.startingState()}
     path = {}
-    goalState = (-1, -1)
+    directions = []
     while fringe.isEmpty() is False:
         node = fringe.pop()
-        if node[2] != 'Stop':
+        if len(node) == 3:
             path[node[0]] = node[1]
-        for child in problem.successorStates(node[0]):
+            node = node[0]
+        for child in problem.successorStates(node):
             if problem.isGoal(child[0]):
-                goalState = child[0]
-                path[child[0]] = child[1]
-                break
+                # goalState = child[0]
+                state = child[0]
+                move = child[1]
+                path[state] = move
+                directions.append(move)
+                while True:
+                    x, y = Actions.getSuccessor(state, Actions.reverseDirection(move))
+                    state = (int(x), int(y))
+                    if state == problem.startingState():
+                        break
+                    directions.insert(0, path[state])
+                    move = directions[0]
             if child[0] not in reached:
                 reached.add(child[0])
                 fringe.push(child, child[2])
-    directions = []
-    if goalState == (-1, -1):
-        return directions
-    while len(directions) > -2:
-        directions.insert(0, path[goalState])
-        x, y = goalState
-        if directions[0] == "Stop":
-            break
-        if directions[0] == "North":
-            goalState = (x, y-1)
-            continue
-        if directions[0] == "South":
-            goalState = (x, y+1)
-            continue
-        if directions[0] == "East":
-            goalState = (x-1, y)
-            continue
-        if directions[0] == "West":
-            goalState = (x+1, y)
-            continue
     return directions
 
 def aStarSearch(problem, heuristic):
@@ -166,4 +135,33 @@ def aStarSearch(problem, heuristic):
     """
 
     # *** Your Code Here ***
-    raise NotImplementedError()
+    if problem.isGoal(problem.startingState()):
+        return "STOP"
+    fringe = PriorityQueue()
+    fringe.push(problem.startingState(), heuristic(problem.startingState(), problem))
+    reached = {problem.startingState()}
+    path = {}
+    directions = []
+    while fringe.isEmpty() is False:
+        node = fringe.pop()
+        if len(node) == 3:
+            path[node[0]] = node[1]
+            node = node[0]
+        for child in problem.successorStates(node):
+            if problem.isGoal(child[0]):
+                # goalState = child[0]
+                state = child[0]
+                move = child[1]
+                path[state] = move
+                directions.append(move)
+                while True:
+                    x, y = Actions.getSuccessor(state, Actions.reverseDirection(move))
+                    state = (int(x), int(y))
+                    if state == problem.startingState():
+                        break
+                    directions.insert(0, path[state])
+                    move = directions[0]
+            if child[0] not in reached:
+                reached.add(child[0])
+                fringe.push(child, child[2] + heuristic(child[0], problem))
+    return directions
