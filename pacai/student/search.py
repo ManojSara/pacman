@@ -38,17 +38,25 @@ def depthFirstSearch(problem):
             node = node[0]
         for child in problem.successorStates(node):
             if problem.isGoal(child[0]):
-                state = child[0]
-                move = child[1]
-                path[state] = move
-                directions.append(move)
+                goalState = child[0]
+                path[child[0]] = child[1]
                 while True:
-                    x, y = Actions.getSuccessor(state, Actions.reverseDirection(move))
-                    state = (int(x), int(y))
-                    if state == problem.startingState():
+                    if goalState == problem.startingState():
                         break
-                    directions.insert(0, path[state])
-                    move = directions[0]
+                    directions.insert(0, path[goalState])
+                    x, y = goalState
+                    if directions[0] == "North":
+                        goalState = (x, y - 1)
+                        continue
+                    if directions[0] == "South":
+                        goalState = (x, y + 1)
+                        continue
+                    if directions[0] == "East":
+                        goalState = (x - 1, y)
+                        continue
+                    if directions[0] == "West":
+                        goalState = (x + 1, y)
+                        continue
                 return directions
             if child[0] not in reached:
                 reached.add(child[0])
@@ -82,16 +90,16 @@ def breadthFirstSearch(problem):
                     directions.insert(0, path[goalState])
                     x, y = goalState
                     if directions[0] == "North":
-                        goalState = (x, y-1)
+                        goalState = (x, y - 1)
                         continue
                     if directions[0] == "South":
-                        goalState = (x, y+1)
+                        goalState = (x, y + 1)
                         continue
                     if directions[0] == "East":
-                        goalState = (x-1, y)
+                        goalState = (x - 1, y)
                         continue
                     if directions[0] == "West":
-                        goalState = (x+1, y)
+                        goalState = (x + 1, y)
                         continue
                 return directions
             if child[0] not in reached:
@@ -108,7 +116,6 @@ def uniformCostSearch(problem):
         return "STOP"
     fringe = PriorityQueue()
     fringe.push(problem.startingState(), 0)
-    totalCost = 1
     reached = {problem.startingState()}
     path = {}
     directions = []
@@ -119,22 +126,29 @@ def uniformCostSearch(problem):
             node = node[0]
         for child in problem.successorStates(node):
             if problem.isGoal(child[0]):
-                state = child[0]
-                move = child[1]
-                path[state] = move
-                directions.append(move)
+                goalState = child[0]
+                path[child[0]] = child[1]
                 while True:
-                    x, y = Actions.getSuccessor(state, Actions.reverseDirection(move))
-                    state = (int(x), int(y))
-                    if state == problem.startingState():
+                    if goalState == problem.startingState():
                         break
-                    directions.insert(0, path[state])
-                    move = directions[0]
+                    directions.insert(0, path[goalState])
+                    x, y = goalState
+                    if directions[0] == "North":
+                        goalState = (x, y - 1)
+                        continue
+                    if directions[0] == "South":
+                        goalState = (x, y + 1)
+                        continue
+                    if directions[0] == "East":
+                        goalState = (x - 1, y)
+                        continue
+                    if directions[0] == "West":
+                        goalState = (x + 1, y)
+                        continue
                 return directions
             if child[0] not in reached:
                 reached.add(child[0])
-                totalCost += child[2]
-                fringe.push(child, totalCost)
+                fringe.push(child, child[2])
 
 def aStarSearch(problem, heuristic):
     """
@@ -146,7 +160,7 @@ def aStarSearch(problem, heuristic):
         return "STOP"
     fringe = PriorityQueue()
     fringe.push(problem.startingState(), heuristic(problem.startingState(), problem))
-    totalCost = 1
+    totalCost = 0
     reached = {problem.startingState()}
     path = {}
     directions = []
@@ -157,19 +171,27 @@ def aStarSearch(problem, heuristic):
             node = node[0]
         for child in problem.successorStates(node):
             if problem.isGoal(child[0]):
-                state = child[0]
-                move = child[1]
-                path[state] = move
-                directions.append(move)
+                goalState = child[0]
+                path[child[0]] = child[1]
                 while True:
-                    x, y = Actions.getSuccessor(state, Actions.reverseDirection(move))
-                    state = (int(x), int(y))
-                    if state == problem.startingState():
+                    if goalState == problem.startingState():
                         break
-                    directions.insert(0, path[state])
-                    move = directions[0]
+                    directions.insert(0, path[goalState])
+                    x, y = goalState
+                    if directions[0] == "North":
+                        goalState = (x, y - 1)
+                        continue
+                    if directions[0] == "South":
+                        goalState = (x, y + 1)
+                        continue
+                    if directions[0] == "East":
+                        goalState = (x - 1, y)
+                        continue
+                    if directions[0] == "West":
+                        goalState = (x + 1, y)
+                        continue
                 return directions
             if child[0] not in reached:
                 reached.add(child[0])
-                fringe.push(child, totalCost + heuristic(child[0], problem))
                 totalCost += child[2]
+                fringe.push(child, totalCost + heuristic(child[0], problem))
