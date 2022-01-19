@@ -33,7 +33,7 @@ def depthFirstSearch(problem):
     directions = []
     while fringe.isEmpty() is False:
         node = fringe.pop()
-        if len(node) == 3:
+        if len(node) != 1:
             path[node[0]] = node[1]
             node = node[0]
         for child in problem.successorStates(node):
@@ -50,10 +50,10 @@ def depthFirstSearch(problem):
                         break
                     directions.insert(0, path[state])
                     move = directions[0]
+                return directions
             if child[0] not in reached:
                 reached.add(child[0])
                 fringe.push(child)
-    return directions
 
 def breadthFirstSearch(problem):
     """
@@ -70,7 +70,7 @@ def breadthFirstSearch(problem):
     directions = []
     while fringe.isEmpty() is False:
         node = fringe.pop()
-        if len(node) == 3:
+        if len(node) != 1:
             path[node[0]] = node[1]
             node = node[0]
         for child in problem.successorStates(node):
@@ -87,10 +87,10 @@ def breadthFirstSearch(problem):
                         break
                     directions.insert(0, path[state])
                     move = directions[0]
+                return directions
             if child[0] not in reached:
                 reached.add(child[0])
                 fringe.push(child)
-    return directions
 
 def uniformCostSearch(problem):
     """
@@ -107,7 +107,7 @@ def uniformCostSearch(problem):
     directions = []
     while fringe.isEmpty() is False:
         node = fringe.pop()
-        if len(node) == 3:
+        if len(node) != 1:
             path[node[0]] = node[1]
             node = node[0]
         for child in problem.successorStates(node):
@@ -124,10 +124,10 @@ def uniformCostSearch(problem):
                         break
                     directions.insert(0, path[state])
                     move = directions[0]
+                return directions
             if child[0] not in reached:
                 reached.add(child[0])
                 fringe.push(child, child[2])
-    return directions
 
 def aStarSearch(problem, heuristic):
     """
@@ -144,7 +144,7 @@ def aStarSearch(problem, heuristic):
     directions = []
     while fringe.isEmpty() is False:
         node = fringe.pop()
-        if len(node) == 3:
+        if len(node) != 1:
             path[node[0]] = node[1]
             node = node[0]
         for child in problem.successorStates(node):
@@ -161,7 +161,7 @@ def aStarSearch(problem, heuristic):
                         break
                     directions.insert(0, path[state])
                     move = directions[0]
+                return directions
             if child[0] not in reached:
                 reached.add(child[0])
                 fringe.push(child, child[2] + heuristic(child[0], problem))
-    return directions
