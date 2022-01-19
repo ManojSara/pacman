@@ -33,7 +33,7 @@ def depthFirstSearch(problem):
     directions = []
     while fringe.isEmpty() is False:
         node = fringe.pop()
-        if len(node) != 1:
+        if len(node) > 2:
             path[node[0]] = node[1]
             node = node[0]
         for child in problem.successorStates(node):
@@ -70,7 +70,8 @@ def breadthFirstSearch(problem):
     directions = []
     while fringe.isEmpty() is False:
         node = fringe.pop()
-        if len(node) != 1:
+        if len(node) > 2:
+            path[node[0]] = node[1]
             path[node[0]] = node[1]
             node = node[0]
         for child in problem.successorStates(node):
@@ -107,7 +108,8 @@ def uniformCostSearch(problem):
     directions = []
     while fringe.isEmpty() is False:
         node = fringe.pop()
-        if len(node) != 1:
+        if len(node) > 2:
+            path[node[0]] = node[1]
             path[node[0]] = node[1]
             node = node[0]
         for child in problem.successorStates(node):
@@ -144,7 +146,29 @@ def aStarSearch(problem, heuristic):
     directions = []
     while fringe.isEmpty() is False:
         node = fringe.pop()
-        if len(node) != 1:
+        if len(node) > 2:
+            path[node[0]] = node[1]
+            path[node[0]] = node[1]
+            node = node[0]
+        for child in problem.successorStates(node):
+            if problem.isGoal(child[0]):
+                # goalState = child[0]
+                state = child[0]
+                move = child[1]
+                path[state] = move
+                directions.append(move)
+                while True:
+                    x, y = Actions.getSuccessor(state, Actions.reverseDirection(move))
+                    state = (int(x), int(y))
+                    if state == problem.startingState():
+                        break
+                    directions.insert(0, path[state])
+                    move = directions[0]
+                return directions
+            if child[0] not in reached:
+                reached.add(child[0])
+                fringe.push(child, child[2])
+
             path[node[0]] = node[1]
             node = node[0]
         for child in problem.successorStates(node):
