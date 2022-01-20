@@ -5,7 +5,6 @@ In this file, you will implement generic search algorithms which are called by P
 from pacai.util.stack import Stack
 from pacai.util.queue import Queue
 from pacai.util.priorityQueue import PriorityQueue
-from pacai.core.actions import Actions
 
 def depthFirstSearch(problem):
     """
@@ -116,6 +115,7 @@ def uniformCostSearch(problem):
         return "STOP"
     fringe = PriorityQueue()
     fringe.push(problem.startingState(), 0)
+    totalCost = 0
     reached = {problem.startingState()}
     path = {}
     directions = []
@@ -125,6 +125,7 @@ def uniformCostSearch(problem):
             path[node[0]] = node[1]
             node = node[0]
         for child in problem.successorStates(node):
+            totalCost += child[2]
             if problem.isGoal(child[0]):
                 goalState = child[0]
                 path[child[0]] = child[1]
@@ -148,7 +149,7 @@ def uniformCostSearch(problem):
                 return directions
             if child[0] not in reached:
                 reached.add(child[0])
-                fringe.push(child, child[2])
+                fringe.push(child, totalCost)
 
 def aStarSearch(problem, heuristic):
     """
@@ -193,5 +194,5 @@ def aStarSearch(problem, heuristic):
                 return directions
             if child[0] not in reached:
                 reached.add(child[0])
-                totalCost += child[2]
-                fringe.push(child, totalCost + heuristic(child[0], problem))
+                totalCost += 1
+                fringe.push(child, totalCost + child[2] + heuristic(child[0], problem))
