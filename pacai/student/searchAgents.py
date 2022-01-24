@@ -107,16 +107,16 @@ class CornersProblem(SearchProblem):
         return True
 
     def successorStates(self, state):
-        successors = [] # Initialize list to hold successors
-        self.currentPosition = state[0] # Get position that needs successors
-        for action in Directions.CARDINAL: # Look through all possible action from position
+        successors = []  # Initialize list to hold successors
+        self.currentPosition = state[0]  # Get position that needs successors
+        for action in Directions.CARDINAL:  # Look through all possible action from position
 
             # Get the position that is reached after the action is taken
             x, y = state[0]
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
 
-            hitsWall = self.walls[nextx][nexty] # Check if reached position is illegal
+            hitsWall = self.walls[nextx][nexty]  # Check if reached position is illegal
 
             # If legal, add to successors list
             if (not hitsWall):
@@ -129,7 +129,7 @@ class CornersProblem(SearchProblem):
                 else:
                     successors.append((((nextx, nexty), state[1]), action, 1))
 
-        self._numExpanded += 1 # Increment for every entry of successorStates
+        self._numExpanded += 1  # Increment for every entry of successorStates
 
         # For shading board
         if state[0] not in self._visitedLocations:
@@ -157,10 +157,10 @@ def cornersHeuristic(state, problem):
     # The heuristic is the manhattan distance of going to the closest food,
     # then going to the closest food from there, etc.
 
-    sum = 0 # Holds heuristic
-    position = state[0] # Get traversable position to check manhattan distance
-    cornerL = state[1].copy() # Make sure not to change actual corner list
-    bestC = cornerL[0] # Get dummy corner
+    sum = 0  # Holds heuristic
+    position = state[0]  # Get traversable position to check manhattan distance
+    cornerL = state[1].copy()  # Make sure not to change actual corner list
+    bestC = cornerL[0]  # Get dummy corner
 
     while True:
 
@@ -169,13 +169,15 @@ def cornersHeuristic(state, problem):
             if distance.manhattan(position, bestC) > distance.manhattan(position, corner):
                 bestC = corner
 
-        sum += distance.manhattan(position, bestC) # Get manhattan distance to closest corner
-        position = bestC # Set new position to compare distances from there
-        cornerL.remove(bestC) # Remove the corner reached in traversal
+        sum += distance.manhattan(position, bestC)  # Get manhattan distance to closest corner
+        position = bestC  # Set new position to compare distances from there
+        cornerL.remove(bestC)  # Remove the corner reached in traversal
 
         # If all corners reached while traversing, leave loop
         if len(cornerL) == 0:
             break
+
+        bestC = cornerL[0]  # Get new dummy corner
 
     return sum
 
@@ -215,14 +217,14 @@ def foodHeuristic(state, problem):
     # The heuristic is the real distance to the closest food, which increases by one
     # for every food that might not be reached while going to the closest food
 
-    foodL = foodGrid.asList() # Get list of food for easier use
+    foodL = foodGrid.asList()  # Get list of food for easier use
 
     # Return zero if no food left
     if len(foodL) == 0:
         return 0
 
-    bestF = foodL[0] # Get dummy food
-    gameS = problem.startingGameState # get Game State
+    bestF = foodL[0]  # Get dummy food
+    gameS = problem.startingGameState  # Get Game State
 
     # Return real distance to food if only one food left
     if len(foodL) == 1:

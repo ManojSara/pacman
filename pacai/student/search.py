@@ -28,12 +28,12 @@ def depthFirstSearch(problem):
     if problem.isGoal(problem.startingState()):
         return "STOP"
 
-    fringe = Stack() # DFS implemented as FILO Stack to emulate moving down one branch of a tree
-    fringe.push((problem.startingState(), [])) # Push empty path to start chain of actions
-    reached = [problem.startingState()] # Keep track of reached nodes to not push to fringe twice
+    fringe = Stack()  # DFS implemented as FILO Stack to emulate moving down one branch of a tree
+    fringe.push((problem.startingState(), []))  # Push empty path to start chain of actions
+    reached = [problem.startingState()]  # Keep track of reached nodes to not push to fringe twice
     while fringe.isEmpty() is False:
-        state, path = fringe.pop() # Get latest node on fringe
-        for child in problem.successorStates(state): # Iterate through successors
+        state, path = fringe.pop()  # Get latest node on fringe
+        for child in problem.successorStates(state):  # Iterate through successors
 
             # If goal reached, add on final direction and return path
             if problem.isGoal(child[0]):
@@ -55,12 +55,12 @@ def breadthFirstSearch(problem):
     if problem.isGoal(problem.startingState()):
         return "STOP"
 
-    fringe = Queue() # BFS implemented as LILO Queue to emulate moving down all branches
-    fringe.push((problem.startingState(), [])) # Push empty path to start chain of actions
-    reached = [problem.startingState()] # Keep track of reached nodes to not push to fringe twice
+    fringe = Queue()  # BFS implemented as LILO Queue to emulate moving down all branches
+    fringe.push((problem.startingState(), []))  # Push empty path to start chain of actions
+    reached = [problem.startingState()]  # Keep track of reached nodes to not push to fringe twice
     while fringe.isEmpty() is False:
-        state, path = fringe.pop() # Get latest node on fringe
-        for child in problem.successorStates(state): # Iterate through successors
+        state, path = fringe.pop()  # Get latest node on fringe
+        for child in problem.successorStates(state):  # Iterate through successors
 
             # If goal reached, add on final direction and return path
             if problem.isGoal(child[0]):
@@ -82,12 +82,12 @@ def uniformCostSearch(problem):
     if problem.isGoal(problem.startingState()):
         return "STOP"
 
-    fringe = PriorityQueue() # UCS implemented as Priority Queue to go down least cost path
-    fringe.push((problem.startingState(), [], 0), 0) # Push empty path and zero cost
-    reached = [problem.startingState()] # Keep track of reached nodes to not push to fringe twice
+    fringe = PriorityQueue()  # UCS implemented as Priority Queue to go down least cost path
+    fringe.push((problem.startingState(), [], 0), 0)  # Push empty path and zero cost
+    reached = [problem.startingState()]  # Keep track of reached nodes to not push to fringe twice
     while fringe.isEmpty() is False:
-        state, path, cost = fringe.pop() # Get latest node on fringe
-        for child in problem.successorStates(state): # Iterate through successors
+        state, path, cost = fringe.pop()  # Get latest node on fringe
+        for child in problem.successorStates(state):  # Iterate through successors
 
             # If goal reached, add on final direction and return path
             if problem.isGoal(child[0]):
@@ -109,13 +109,13 @@ def aStarSearch(problem, heuristic):
     if problem.isGoal(problem.startingState()):
         return "STOP"
 
-    fringe = PriorityQueue() # UCS implemented as Priority Queue to go down least cost path
+    fringe = PriorityQueue()  # UCS implemented as Priority Queue to go down least cost path
     fringe.push((problem.startingState(), [], 0),
-                heuristic(problem.startingState(), problem)) # Push empty path and heuristic
-    reached = [problem.startingState()] # Keep track of reached nodes to not push to fringe twice
+                heuristic(problem.startingState(), problem))  # Push empty path and heuristic
+    reached = [problem.startingState()]  # Keep track of reached nodes to not push to fringe twice
     while fringe.isEmpty() is False:
-        state, path, cost = fringe.pop() # Get latest node on fringe
-        for child in problem.successorStates(state): # Iterate through successors
+        state, path, cost = fringe.pop()  # Get latest node on fringe
+        for child in problem.successorStates(state):  # Iterate through successors
 
             # If goal reached, add on final direction and return path
             if problem.isGoal(child[0]):
