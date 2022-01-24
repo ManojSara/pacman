@@ -47,14 +47,22 @@ def breadthFirstSearch(problem):
         return "STOP"
     fringe = Queue()
     fringe.push((problem.startingState(), []))
-    reached = {problem.startingState()}
+    #reached = {problem.startingState()}
+    reached = [problem.startingState()]
     while fringe.isEmpty() is False:
         state, path = fringe.pop()
+        #print("state:")
+        #print(state)
+        #print("path:")
+        #print(path)
         for child in problem.successorStates(state):
+            #print("child:")
+            #print(child)
             if problem.isGoal(child[0]):
                 return path + [child[1]]
             if child[0] not in reached:
-                reached.add(child[0])
+                #reached.add(child[0])
+                reached.append(child[0])
                 fringe.push((child[0], path + [child[1]]))
 
 def uniformCostSearch(problem):
@@ -88,7 +96,8 @@ def aStarSearch(problem, heuristic):
         return "STOP"
     fringe = PriorityQueue()
     cost = 0
-    fringe.push((problem.startingState(), [], cost), cost + heuristic(problem.startingState(), problem))
+    fringe.push((problem.startingState(), [], cost),
+                cost + heuristic(problem.startingState(), problem))
     reached = {problem.startingState()}
     while fringe.isEmpty() is False:
         state, path, cost = fringe.pop()
@@ -97,4 +106,5 @@ def aStarSearch(problem, heuristic):
                 return path + [child[1]]
             if child[0] not in reached:
                 reached.add(child[0])
-                fringe.push((child[0], path + [child[1]], cost + child[2]), cost + child[2] + heuristic(child[0], problem))
+                fringe.push((child[0], path + [child[1]], cost + child[2]),
+                            cost + child[2] + heuristic(child[0], problem))

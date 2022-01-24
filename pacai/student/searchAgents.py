@@ -65,7 +65,8 @@ class CornersProblem(SearchProblem):
                 logging.warning('Warning: no food in corner ' + str(corner))
 
         # *** Your Code Here ***
-        self.cornerList = []
+        self.cornerList = [(1, 1), (1, top), (right, 1), (right, top)]
+        self.currentPosition = self.startingPosition
 
     def actionsCost(self, actions):
         """
@@ -87,31 +88,33 @@ class CornersProblem(SearchProblem):
         return len(actions)
 
     def startingState(self):
-        return (self.startingPosition)
+        return (self.startingPosition, self.cornerList)
 
     def isGoal(self, state):
-        for corner in self.corners:
-            if state == corner:
-                self.cornerList.append(corner)
-        if len(self.cornerList) != 4:
+        if len(state[1]) != 0:
             return False
-        self._visitedLocations.add(state)
-        self._visitHistory.append(state)
+        self._visitedLocations.add(state[0])
+        self._visitHistory.append(state[0])
         return True
 
     def successorStates(self, state):
         successors = []
+        self.currentPosition = state[0]
         for action in Directions.CARDINAL:
-            x, y = state
+            x, y = state[0]
             dx, dy = Actions.directionToVector(action)
-            nextx, nexty = int(x + dx), int (y + dy)
+            nextx, nexty = int(x + dx), int(y + dy)
             hitsWall = self.walls[nextx][nexty]
             if (not hitsWall):
-                successors.append(((nextx, nexty), action, 1))
+                if (nextx, nexty) in state[1]:
+                    updated = state[1].copy()
+                    updated.remove((nextx, nexty))
+                    successors.append((((nextx, nexty), updated), action, 1))
+                successors.append((((nextx, nexty), state[1]), action, 1))
         self._numExpanded += 1
-        if state not in self._visitedLocations:
-            self._visitedLocations.add(state)
-            self._visitHistory.append(state)
+        if state[0] not in self._visitedLocations:
+            self._visitedLocations.add(state[0])
+            self._visitHistory.append(state[0])
         return successors
 
 def cornersHeuristic(state, problem):
