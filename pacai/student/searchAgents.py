@@ -7,13 +7,14 @@ Good luck and happy searching!
 
 import logging
 
+from pacai.core import distance
 from pacai.core.actions import Actions
 from pacai.core.directions import Directions
-from pacai.core.search import heuristic
 from pacai.core.search.position import PositionSearchProblem
 from pacai.core.search.problem import SearchProblem
 from pacai.agents.base import BaseAgent
 from pacai.agents.search.base import SearchAgent
+from pacai.student import search
 
 class CornersProblem(SearchProblem):
     """
@@ -65,8 +66,9 @@ class CornersProblem(SearchProblem):
                 logging.warning('Warning: no food in corner ' + str(corner))
 
         # *** Your Code Here ***
+
+        # Make list of corners to give to each node
         self.cornerList = [(1, 1), (1, top), (right, 1), (right, top)]
-        self.currentPosition = self.startingPosition
 
     def actionsCost(self, actions):
         """
@@ -88,33 +90,52 @@ class CornersProblem(SearchProblem):
         return len(actions)
 
     def startingState(self):
+        # Give starting node position and full list of corners
         return (self.startingPosition, self.cornerList)
 
     def isGoal(self, state):
+
+        # All corners reached if all are gone from list
         if len(state[1]) != 0:
             return False
+
+        # For shading board
         self._visitedLocations.add(state[0])
         self._visitHistory.append(state[0])
+
+        # Return True if all corners are gone
         return True
 
     def successorStates(self, state):
-        successors = []
-        self.currentPosition = state[0]
-        for action in Directions.CARDINAL:
+        successors = [] # Initialize list to hold successors
+        self.currentPosition = state[0] # Get position that needs successors
+        for action in Directions.CARDINAL: # Look through all possible action from position
+
+            # Get the position that is reached after the action is taken
             x, y = state[0]
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
-            hitsWall = self.walls[nextx][nexty]
+
+            hitsWall = self.walls[nextx][nexty] # Check if reached position is illegal
+
+            # If legal, add to successors list
             if (not hitsWall):
+
+                # If reached position is corner, update that successor's list of corners
                 if (nextx, nexty) in state[1]:
                     updated = state[1].copy()
                     updated.remove((nextx, nexty))
                     successors.append((((nextx, nexty), updated), action, 1))
-                successors.append((((nextx, nexty), state[1]), action, 1))
-        self._numExpanded += 1
+                else:
+                    successors.append((((nextx, nexty), state[1]), action, 1))
+
+        self._numExpanded += 1 # Increment for every entry of successorStates
+
+        # For shading board
         if state[0] not in self._visitedLocations:
             self._visitedLocations.add(state[0])
             self._visitHistory.append(state[0])
+
         return successors
 
 def cornersHeuristic(state, problem):
@@ -132,7 +153,31 @@ def cornersHeuristic(state, problem):
     # walls = problem.walls  # These are the walls of the maze, as a Grid.
 
     # *** Your Code Here ***
-    return heuristic.null(state, problem)  # Default to trivial solution
+
+    # The heuristic is the manhattan distance of going to the closest food,
+    # then going to the closest food from there, etc.
+
+    sum = 0 # Holds heuristic
+    position = state[0] # Get traversable position to check manhattan distance
+    cornerL = state[1].copy() # Make sure not to change actual corner list
+    bestC = cornerL[0] # Get dummy corner
+
+    while True:
+
+        # Iterate through node's list of corners to find closest corner
+        for corner in cornerL:
+            if distance.manhattan(position, bestC) > distance.manhattan(position, corner):
+                bestC = corner
+
+        sum += distance.manhattan(position, bestC) # Get manhattan distance to closest corner
+        position = bestC # Set new position to compare distances from there
+        cornerL.remove(bestC) # Remove the corner reached in traversal
+
+        # If all corners reached while traversing, leave loop
+        if len(cornerL) == 0:
+            break
+
+    return sum
 
 def foodHeuristic(state, problem):
     """
@@ -166,7 +211,41 @@ def foodHeuristic(state, problem):
     position, foodGrid = state
 
     # *** Your Code Here ***
-    return heuristic.null(state, problem)  # Default to the null heuristic.
+
+    # The heuristic is the real distance to the closest food, which increases by one
+    # for every food that might not be reached while going to the closest food
+
+    foodL = foodGrid.asList() # Get list of food for easier use
+
+    # Return zero if no food left
+    if len(foodL) == 0:
+        return 0
+
+    bestF = foodL[0] # Get dummy food
+    gameS = problem.startingGameState # get Game State
+
+    # Return real distance to food if only one food left
+    if len(foodL) == 1:
+        return distance.maze(position, bestF, gameS)
+
+    # Find closest food via manhattan distance
+    for food in foodL:
+        manF = distance.manhattan(position, food)
+        if distance.manhattan(position, bestF) > manF:
+            bestF = food
+
+    # Find real distance to closest food
+    closeD = distance.maze(position, bestF, gameS)
+
+    # Add one extra to heuristic for every food that might not be reached while moving
+    miss = 0
+    x, y = bestF
+    for food in foodL:
+        if food[0] != x or food[1] != y:
+            miss += 1
+
+    # Return combined heuristic
+    return closeD + miss
 
 class ClosestDotSearchAgent(SearchAgent):
     """
@@ -208,7 +287,12 @@ class ClosestDotSearchAgent(SearchAgent):
         # problem = AnyFoodSearchProblem(gameState)
 
         # *** Your Code Here ***
-        raise NotImplementedError()
+
+        # Initialize AnyFoodSearchProblem with the starting position
+        problem = AnyFoodSearchProblem(gameState, gameState.getPacmanPosition())
+
+        # Return BFS route that is set to end when any food is reached
+        return search.breadthFirstSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -236,6 +320,10 @@ class AnyFoodSearchProblem(PositionSearchProblem):
 
         # Store the food for later reference.
         self.food = gameState.getFood()
+
+    # AnyFoodSearchProblem is happy when any food is reached
+    def isGoal(self, state):
+        return state in self.food.asList()
 
 class ApproximateSearchAgent(BaseAgent):
     """
