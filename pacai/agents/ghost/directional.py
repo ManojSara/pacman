@@ -1,6 +1,7 @@
 from pacai.agents.ghost.base import GhostAgent
 from pacai.core.actions import Actions
 from pacai.core import distance
+from pacai.util import probability
 
 class DirectionalGhost(GhostAgent):
     """
@@ -24,8 +25,8 @@ class DirectionalGhost(GhostAgent):
         if (isScared):
             speed = 0.5
 
-        actionVectors = [Actions.directionToVector(a, speed) for a in legalActions]
-        newPositions = [(pos[0] + a[0], pos[1] + a[1]) for a in actionVectors]
+        actionVectors = [Actions.directionToVector(action, speed) for action in legalActions]
+        newPositions = [(pos[0] + action[0], pos[1] + action[1]) for action in actionVectors]
         pacmanPosition = state.getPacmanPosition()
 
         # Select best actions given the state.
@@ -43,11 +44,13 @@ class DirectionalGhost(GhostAgent):
         # Construct distribution.
         dist = {}
 
-        for a in bestActions:
-            dist[a] = float(bestProb) / len(bestActions)
+        for action in bestActions:
+            dist[action] = float(bestProb) / len(bestActions)
 
-        for a in legalActions:
-            dist[a] += float(1 - bestProb) / len(legalActions)
+        for action in legalActions:
+            if (action not in dist):
+                dist[action] = 0
+            dist[action] += float(1 - bestProb) / len(legalActions)
 
-        dist.normalize()
+        probability.normalize(dist)
         return dist
