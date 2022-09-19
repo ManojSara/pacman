@@ -1,5 +1,9 @@
 from pacai.agents.learning.reinforcement import ReinforcementAgent
 from pacai.util import reflection
+from pacai.util import probability
+from collections import Counter
+import random
+import math
 
 class QLearningAgent(ReinforcementAgent):
     """
@@ -40,12 +44,17 @@ class QLearningAgent(ReinforcementAgent):
     Note that you should never call this function, it will be called on your behalf.
 
     DESCRIPTION: <Write something here so we know what you did.>
+    getValue finds the best Q-Value in a state. getPolicy will use this Q-Value to find
+    all actions that lead to this Q-Value, and pick a random one. getAction implements a
+    chance to perform the wrong action when choosing an action. update uses the Q-Value
+    formula to set a new Q-Value to the dictionary of Q-Values.
     """
 
     def __init__(self, index, **kwargs):
         super().__init__(index, **kwargs)
 
         # You can initialize Q-values here.
+        self.qvalues = Counter()
 
     def getQValue(self, state, action):
         """
@@ -54,7 +63,11 @@ class QLearningAgent(ReinforcementAgent):
         Should return 0.0 if the (state, action) pair has never been seen.
         """
 
-        return 0.0
+        # Return Q-Value in dictionary
+        if (state, action) in self.qvalues:
+            return self.qvalues[(state, action)]
+        else:
+            return 0.0
 
     def getValue(self, state):
         """
@@ -68,8 +81,20 @@ class QLearningAgent(ReinforcementAgent):
         which returns the actual best action.
         Whereas this method returns the value of the best action.
         """
+        actions = self.getLegalActions(state)
 
-        return 0.0
+        # Return 0.0 if no legal actions
+        if len(actions) == 0:
+            return 0.0
+
+        # Find best Q-value out of all actions in state
+        bestVal = math.inf * -1
+        for action in actions:
+            val = self.getQValue(state, action)
+            if bestVal < val:
+                bestVal = val
+
+        return bestVal
 
     def getPolicy(self, state):
         """
@@ -84,7 +109,43 @@ class QLearningAgent(ReinforcementAgent):
         Whereas this method returns the best action itself.
         """
 
-        return None
+        actions = self.getLegalActions(state)
+
+        # Return None if no legal actions
+        if len(actions) == 0:
+            return None
+
+        # Use getValue() to find all best actions
+        bestVal = self.getValue(state)
+        bestAction = []
+        for action in actions:
+            val = self.getQValue(state, action)
+            if bestVal == val:
+                bestAction.append(action)
+
+        # Return a randomly chosen one of the best actions
+        return random.choice(bestAction)
+
+    def getAction(self, state):
+        actions = self.getLegalActions(state)
+
+        # Return None if no legal actions
+        if len(actions) == 0:
+            return None
+
+        # Use the epsilon value to calculate the chance the wrong action is performed
+        if (probability.flipCoin(self.getEpsilon())):
+            return random.choice(actions)
+        else:
+            return self.getPolicy(state)
+
+    # Implement the Q-Value formula
+    def update(self, state, action, nextState, reward):
+        a = self.getAlpha()
+        q = self.getQValue(state, action)
+        d = self.getDiscountRate()
+        v = self.getValue(nextState)
+        self.qvalues[(state, action)] = (1 - a) * q + a * (reward + d * v)
 
 class PacmanQAgent(QLearningAgent):
     """
@@ -128,14 +189,34 @@ class ApproximateQAgent(PacmanQAgent):
     Should update your weights based on transition.
 
     DESCRIPTION: <Write something here so we know what you did.>
+    Made weight Counter, initialized feature Extractor. Returned
+    dot product of weights and feature Vector in getQValue. Used given
+    formula in update().
     """
 
     def __init__(self, index,
             extractor = 'pacai.core.featureExtractors.IdentityExtractor', **kwargs):
         super().__init__(index, **kwargs)
-        self.featExtractor = reflection.qualifiedImport(extractor)
-
+        self.featExtractor = reflection.qualifiedImport(extractor)()
         # You might want to initialize weights here.
+        self.weights = Counter()  # Initialized to Counter
+
+    # Return dot product of feature Vector and weight Vector
+    def getQValue(self, state, action):
+        w = self.weights
+        featureVector = self.featExtractor.getFeatures(state, action)
+        return sum(w[key] * featureVector.get(key, 0) for key in w)
+
+    # Use given update formula and do it on every feature in feature Vector
+    def update(self, state, action, nextState, reward):
+        fV = self.featExtractor.getFeatures(state, action)
+        w = self.weights
+        a = self.getAlpha()
+        d = self.getDiscountRate()
+        v = self.getValue(nextState)
+        q = self.getQValue(state, action)
+        for i in fV:
+            w[i] = w[i] + a * ((reward + d * v) - q) * fV[i]
 
     def final(self, state):
         """
@@ -144,9 +225,3 @@ class ApproximateQAgent(PacmanQAgent):
 
         # Call the super-class final method.
         super().final(state)
-
-        # Did we finish training?
-        if self.episodesSoFar == self.numTraining:
-            # You might want to print your weights here for debugging.
-            # *** Your Code Here ***
-            raise NotImplementedError()

@@ -1,4 +1,6 @@
 from pacai.agents.learning.value import ValueEstimationAgent
+from collections import Counter
+import math
 
 class ValueIterationAgent(ValueEstimationAgent):
     """
@@ -36,10 +38,21 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.mdp = mdp
         self.discountRate = discountRate
         self.iters = iters
-        self.values = {}  # A dictionary which holds the q-values for each state.
+        self.values = Counter()  # A dictionary which holds the q-values for each state.
 
         # Compute the values here.
-        raise NotImplementedError()
+        for _ in range(self.iters):
+            valCopy = self.values.copy()  # Make copy of dict to not mix up updating
+            for state in self.mdp.getStates():
+
+                # Don't check if terminal state
+                if len(self.mdp.getPossibleActions(state)) == 0:
+                    continue
+
+                # Get the Q-value for the state and best possible action
+                valCopy[state] = self.getQValue(state, self.getAction(state))
+
+            self.values = valCopy  # Fill the actual dict with accumulated data
 
     def getValue(self, state):
         """
@@ -48,9 +61,40 @@ class ValueIterationAgent(ValueEstimationAgent):
 
         return self.values[state]
 
+    def getPolicy(self, state):
+
+        actions = self.mdp.getPossibleActions(state)  # Get actions for the state
+
+        # Check for case that could error
+        if len(actions) == 0:
+            return None
+
+        value = math.inf * -1  # Get smallest possible number
+
+        # Find action in state with best Q-value
+        for action in actions:
+            temp = self.getQValue(state, action)
+            if value < temp:
+                value = temp
+                bestAction = action
+
+        # Return best action in state
+        return bestAction
+
     def getAction(self, state):
         """
         Returns the policy at the state (no exploration).
         """
 
         return self.getPolicy(state)
+
+    def getQValue(self, state, action):
+
+        qValue = 0  # Initialize Q-value
+
+        # Get the sum using the formula for Q-value
+        for nextState, prob in self.mdp.getTransitionStatesAndProbs(state, action):
+            qValue += prob * (self.mdp.getReward(state, action, nextState)
+                      + (self.discountRate * self.getValue(nextState)))
+
+        return qValue
